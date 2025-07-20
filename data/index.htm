@@ -1,0 +1,342 @@
+<!DOCTYPE html><html><body><center><h2>Wifi Banner setup</h2>
+<style>
+.tab {
+  max-width:600px;
+  overflow: hidden;
+  border: 1px solid #ccc;
+  background-color: #f1f1f1;
+}
+.tab button {
+  background-color: inherit;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 8px 8px;
+  transition: 0.3s;
+}
+.tab button:hover {background-color: #dfd;}
+.tab button.active {background-color: #ccc;}
+.tabcontent {
+  max-width:560px;
+  display: none;
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-top: none;
+}
+.box{border:1px solid black;width:90%;}
+.bps {width:80%;}
+#smspost,#smscode,#smsurl {width:80%;}
+#not{width:80%;line-break:anywhere;}
+#chbt td{border:1px solid black;padding:1px 9px;}
+#dbug{top:0;position:fixed;right:0;background:#afa;border:1px solid red;padding:5px;}
+</style>
+ <!-- Tab links -->
+<div class="tab">
+  <button class="tablinks" onclick="oy(event, 7)" id="df">Display</button>
+  <button class="tablinks" onclick="oy(event, 5)" >Info</button>
+  <button class="tablinks" onclick="oy(event, 1)">Wifi</button>
+  <button class="tablinks" onclick="oy(event, 6)">Wifi Scan</button>
+  <button class="tablinks" onclick="oy(event, 4)">Advanced</button>
+</div>
+<!-- Tab content -->
+<div id="1" class="tabcontent">
+  <h3>Wifi</h3><p>
+    Enter your 2.4GHz WIFI info:<br>
+    (Click the 'WiFi List' tab to scan for SSIDs)<p>
+  SSID: <input type='text' id='STASSID' maxlength="64"><p>
+  PSK: <input type='text' id='STAPSK' maxlength="64"><p>
+  Saved passwords are not shown after saving!<br>
+  Leave text inputs as (key stored) to keep currently saved values.<br>
+  or use -1 to clear saved value, this works for all inputs.<p>
+  
+  Timezone:<br>
+  <select onchange='tzc()' id='MyTZsi'>
+   <option value='MA'>Manual</option><option value='AB'>Alberta</option>
+   <option value='BC'>British Columbia</option><option value='LB'>Labrador</option>
+   <option value='MB'>Manitoba</option><option value='NB'>New Brunswick</option>
+   <option value='NL'>Newfoundland</option><option value='NS'>Nova Scotia</option>
+   <option value='NT'>Northwest Territories</option><option value='NU'>Nunavut</option>
+   <option value='ON'>Ontario</option><option value='PE'>Prince Edward Island</option>
+   <option value='QC'>Quebec</option><option value='SK'>Saskatchewan</option>
+   <option value='YT'>Yukon</option>
+  </select><br>
+  <input type='text' id='MyTZ' maxlength="50" size='50' ><br>
+  Visit here for <a target='_blank' href='https://github.com/nayarsystems/posix_tz_db/blob/master/zones.csv'>Time Zone strings</a><p>
+
+</p>
+<p><button onclick="saved(['STASSID','STAPSK','MyTZsi','MyTZ']);">Save Main</button> when done making changes!<br>
+<b>Changing any items above requires a restart after you save!</b><br>
+ See Advanced tab for restart.<br>
+</div>
+<div id="4" class="tabcontent">
+  <h3>Advanced</h3><p>
+  Click to <a href='/restart'>restart</a> wifi clock<p><hr>
+  <h3>Access Point (hotspot)</h3>
+  This AP is only used to configure the clock, no internet is provided.<br>
+ AP SSID: <input type="text" id="APSSID" maxlength="64"><br>
+ AP PSK: <input type="text" id="APPSK" maxlength="64"><br>
+ You should change the default password. Remember to click save below.<p>
+ <select id="HideAP">
+  <option value="0">Disable AP</option>
+  <option value="1">Hide AP</option>
+  <option value="2">Show AP</option>
+ </select><br>
+  Show AP: <b>Recommended</b>, The AP (Access Point) is used to connect to WiFi Clock to get to this page. It shows up as "WiFi Clock" if you search for WiFi from your phone.<p>
+  Hide AP: You can still connect to the AP, but it won't show up when looking for a WiFi network to connect to. You will have to set it up manually on your phone.<p>
+  Disable AP : Disable AP turns off the WiFi SSID "Wifi Clock", that means you can only access this page from your local lan once the clock connects to your wifi. It will be difficult to configure the clock without an AP if your router breaks. You have to set up any new routers with the same WiFi details to gain access.<br>
+  If WiFi Clock cannot connect to local WiFi, after some time (from bootup) it will turn this setting back to Show AP (and reboot) so you can still access the settings. It's a basic lockout prevention.</p>
+<h3>Time servers</h3><p>
+You can edit your time servers here:<br>
+NTP1: <input type="text" id="NTP1" maxlength="40"><br>
+NTP2: <input type="text" id="NTP2" maxlength="40"><p>
+<p><button onclick="saved(['HideAP','APSSID','APPSK','NTP1','NTP2']);">Save</button><p>
+<b>Changing any items above requires a restart after you save!</b><br>
+</div>
+<div id="5" class="tabcontent">
+  <h3>Info</h3><p>
+  Wifi Banner<br>
+  Made by Colin Glover (aka DerBen)<p>
+  Version 1.0 Open Source<p>
+  Free RAM: <font id="fram"></font><br>
+  Wifi IP: <font id="stip"></font><br>
+  AP IP: <font id="apip"></font><p>
+  <div id="info">
+  Wifi Signal: <font id="sigl"></font> of 6 bars<p>
+  </div>
+  </p>
+</div>
+<div id="6" class="tabcontent">
+  <h3>Wifi Scan</h3>
+  This will show local WiFi routers.<br>
+  <button id="wflb" type="button" onclick="wifilist();">Show List</button><br>
+  <p id="wifilist"></p>
+</div> 
+<div id="7" class="tabcontent">
+  <h3>Display</h3>
+  Marquee speed: <input id="amspd" type="range" min="0" max="900" value="" onchange="speed(this.value);"><br>
+  Brightness: <input id="aglow" type="range" min="1" max="200" value="" onchange="bright(this.value);"><br>
+  Lower brightness levels will help the LEDs last longer and use less power.<br>
+  Warning; this display can get very bright, use higher levels with caution!<p>
+  Font colour: <select onchange="foco(this.value);" id="afoco">
+  </select><br>
+  <input type='color' id='f1' value="#ffffff" onchange="foco(0);"><input type='color' id='f2' value="#ffffff" onchange="foco(0);"><input type='color' id='f3' value="#ffffff" onchange="foco(0);"><input type='color' id='f4' value="#ffffff" onchange="foco(0);"><input type='color' id='f5' value="#ffffff" onchange="foco(0);"><p>
+  
+  <button onclick="saved(['amspd','aglow','afoco','f1','f2','f3','f4','f5']);">Save</button> the above settings.<p>
+
+  <h3>Message</h3><p>
+  Show marquee message on LCD<br>
+ <input type='text' id='marquee' maxlength="60" size="50"><p>
+ <input type='button' value='Show Now' onclick="marq();"> See available characters below.<p>
+<p>
+ Available characters:<br>
+ 0123456789-+=_[]?!.%:/
+ ABCDEFGHIJKLOPSTUVXY
+ bcdhijlnoprtux
+ <br>
+ Space works too, unlisted characters will be a space.<br>
+ type a * for degrees symbol<br>
+ and ^ for the small super c<p>
+</div>
+
+ <p><br></p>
+<script>
+
+wfl=0;
+var dbug,dbtm;
+const tzo= {AB:'MST7MDT,M3.2.0,M11.1.0',BC:'PST8PDT,M3.2.0,M11.1.0',LB:'AST4ADT,M3.2.0,M11.1.0',MB:'CST6CDT,M3.2.0,M11.1.0',NB:'AST4ADT,M3.2.0,M11.1.0',NL:'NST3:30NDT,M3.2.0,M11.1.0',NS:'AST4ADT,M3.2.0,M11.1.0',NT:'MST7MDT,M3.2.0,M11.1.0',NU:'EST5EDT,M3.2.0,M11.1.0',ON:'EST5EDT,M3.2.0,M11.1.0',PE:'AST4ADT,M3.2.0,M11.1.0',QC:'EST5EDT,M3.2.0,M11.1.0',SK:'CST6',YT:'MST7',MA:''};
+
+
+frow=[
+ ["#00ff00","#00ff00","#00ff00","#00ff00","#00ff00","Manual"],
+ ["#ff0000","#ff8000","#ffff00","#00ff00","#0000ff","Rainbow"],
+ ["#eeeeee","#ecfe90","#fbff24","#ecfe90","#dddddd","NewYear"],
+ ["#ff0000","#ff00ff","#ff0000","#ff00ff","#ff0000","Valentine"],
+ ["#00ff00","#ffff00","#00ff00","#ffff00","#00ff00","Patrick"],
+ ["#DC8C73","#87DCC8","#8CDC8C","#AADC8C","#DC8C8C","Easter"],
+ ["#ff0000","#ffffff","#ff0000","#ffffff","#ff0000","Canada"],
+ ["#ff8000","#ffff00","#5A00AF","#ffff00","#ff8000","Halloween"],
+ ["#ff0000","#ffffff","#8c00ff","#6b6b6b","#ff0000","Remember"],
+ ["#ff8000","#eeeeee","#6b6b6b","#eeeeee","#ff8000","Truth"],
+ ["#00ff00","#ff0000","#00ff00","#ff0000","#00ff00","Christmas"],
+ ["#af4600","#d75000","#c86400","#e67300","#ff7f00","Sunset"],
+ ["#00ff00","#00ee00","#00cc00","#00aa00","#009900","Forest"],
+ ["#00ffff","#00ffbe","#006eff","#0006ff","#0000ff","Underwater"],
+ ["#ff00f7","#f000e8","#e901e2","#d100c0","#c20098","CalmPink"],
+ ["#00ff00","#80ff00","#ffff00","#ff8000","#ff0000","Fall"],
+ ["#bb00ff","#ce2c5c","#9fc19f","#2cc92c","#00ff00","Aurora"]
+];
+af=document.getElementById('afoco')
+frow.forEach(function (item,ii) {
+ var opt = document.createElement('option');
+ opt.value=ii;
+ opt.innerHTML=frow[ii][5];
+ af.appendChild(opt);
+});
+
+//init 
+document.getElementById('df').click(); //default tab
+info(1); ////ajax call to set all checks and inputs
+
+function debug(t){
+// use debug(time-in-ms,arg,arg,etc)
+ clearTimeout(dbtm);
+ if (!dbug){
+  dbug=document.createElement('div'); dbug.id="dbug";document.body.appendChild(dbug);
+ }
+ for (var x in arguments){
+  if (x!=0){dbug.innerHTML+=arguments[x]+'<br>';}
+ }
+ dbtm=setTimeout(function(){dbug.remove();dbug='';}, t);
+}
+function info(sx=0) { //update: sx=1 sets all, sx=0 info tab
+ ajax(-1,"/info",1,"i="+sx);
+}
+
+function marq(){
+ dt=document.getElementById('marquee');
+ if (dt) { ajax(-1,"/marq",1,"d="+dt.value); }
+}
+
+function upd(n){ document.getElementById('STASSID').value=document.getElementById('wf'+n).name; document.getElementById("df").click(); }
+function tzc(){ document.getElementById('MyTZ').value=tzo[document.getElementById('MyTZsi').value]; }
+function oy(evt, ce) { //tab control
+  var i, tabcontent, tablinks;
+  tabcontent = document.getElementsByClassName('tabcontent');
+  for (i = 0; i < tabcontent.length; i++) { tabcontent[i].style.display = "none"; }
+  tablinks = document.getElementsByClassName('tablinks');
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
+  }
+  document.getElementById(ce).style.display = "block";
+  evt.currentTarget.className += " active";
+}
+function wifilist(){
+ document.getElementById('wflb').innerHTML ="Please wait...";
+ wfl=1; ajax("wifilist","/wifilist",1,"d=1");
+ setTimeout(function(){ ajax("wifilist","/wifilist",1,"d=0") },1500);
+}
+
+function saved(tn){
+ tmp="";
+ for (i=0;i<tn.length;i++){
+  var tmt=document.getElementById(tn[i]);
+
+  if (tmt.type=='select-one') { tt=tmt.selectedIndex.toString(); }
+  else if (tmt.type=='checkbox') { tt=tmt.checked ? '1':'0'; }
+  else { tt=tmt.value; }
+  //console.log(tn[i],"=",tt);
+  if (tn[i].substr(0,2)=="bp") {
+   if (checks(tt)) {
+    debug(2000,'Test Beep'+(i+1)+' failed, bad string:\n'+b); return;
+   }
+  }
+  if (tt!=""){
+   if (i>0){ tmp+="&"; }
+   //console.log(tn[i],"=",tt);
+   tmp+=tn[i]+"="+tt;
+  }
+ }
+ ajax(-1,"/saveForm",1,"t=data&"+tmp);
+}
+function savtog(){
+ tmp=document.getElementsByClassName('togs');
+ out=document.getElementById("mac").checked==true ? "1" : "0"; //-1
+ h24=document.getElementById("h24").checked==true ? "1" : "0";
+ hkp=document.getElementById("hkp").selectedIndex;
+ dec=document.getElementById("dec").checked==true ? "1" : "0";
+ for(i=0;i<tmp.length;i++){
+  out+=tmp[i].checked==true ? "1" : "0";
+ }
+ ajax(-1,"/saveForm",1,"t=togg&frames="+out+"&h24="+h24+"&hkp="+hkp+"&dec="+dec);
+}
+function foco(bl){
+ out="";
+ fsi=document.getElementById('afoco');
+ if (bl==0){ fsi.selectedIndex=0; }
+ else {
+  for (i=1;i<=5;i++){ //change all 5 colours
+   document.getElementById("f"+i).value=frow[fsi.selectedIndex][i-1];
+  }
+ }
+ 
+ for (i=1;i<=5;i++){ //get all 5 colours
+  tmp=document.getElementById("f"+i).value;
+  out+="&c="+tmp.slice(1);
+ }
+ 
+ ajax(-1,"/foco",1,"d="+bl+out);
+}
+function bright(bl){ //led brightness
+ ajax(-1,"/glow",1,"d="+bl);
+}
+function speed(bl){ //marq speed
+ ajax(-1,"/sped",1,"d="+bl);
+}
+function tog(tg){ //toggles
+ ajax(-1,"/togl",1,"d="+tg);
+}
+function ajax(id=-1,url,gp,data=""){ // gp 0=get, 1=post
+ const xhttp = new XMLHttpRequest();
+ xhttp.onerror = function(){ debug(2500,"Clock offline!"); }
+ xhttp.onload = function() {
+  if (wfl) {
+   wlf=0;
+   document.getElementById("wflb").innerHTML ="Refresh";
+  }
+  if (id!=-1) {
+   document.getElementById(id).innerHTML = this.responseText;
+  }else if (url!="/info" && this.responseText!="ok") {
+   //alert(this.responseText);
+   debug(2500,this.responseText);
+  }
+  if (url=="/info") {
+
+  
+    let i=0;
+    tmp=this.responseText.split(";"); //se
+    document.getElementById("sigl").innerHTML=tmp[i];i++;
+    document.getElementById("fram").innerHTML=tmp[i];i++;
+    document.getElementById("marquee").value=tmp[i];i++; //mess
+    //console.log(i);
+    if (tmp.length>i){
+     document.getElementById("aglow").value=tmp[i];i++;
+     document.getElementById("amspd").value=tmp[i];i++;
+     document.getElementById("STASSID").value=tmp[i];i++;
+     document.getElementById("afoco").value=tmp[i];i++;
+     document.getElementById("STAPSK").value=tmp[i];i++;
+     document.getElementById("APPSK").value=tmp[i];i++;
+     
+     //10 main
+     document.getElementById("MyTZ").value=tmp[i];i++;
+     document.getElementById("MyTZsi").selectedIndex=tmp[i];i++;
+     document.getElementById("stip").innerHTML=tmp[i];i++;
+     document.getElementById("apip").innerHTML=tmp[i];i++;
+     //17 advanced
+     document.getElementById("APSSID").value=tmp[i];i++;
+     document.getElementById("HideAP").selectedIndex=tmp[i];i++;
+     //19 NTP
+     document.getElementById("NTP1").value=tmp[i];i++;
+     document.getElementById("NTP2").value=tmp[i];i++;
+     //21 display
+     document.getElementById("f1").value=tmp[i];i++;
+     document.getElementById("f2").value=tmp[i];i++;
+     document.getElementById("f3").value=tmp[i];i++;
+     document.getElementById("f4").value=tmp[i];i++;
+     document.getElementById("f5").value=tmp[i];i++;
+
+    }
+   }
+  }
+  if (gp){
+   xhttp.open("POST", url);
+   xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+   xhttp.send(data);
+  } else {
+   xhttp.open("GET", url, true);
+   xhttp.send();
+  }
+}
+</script>
+<p><br></p>
+</center></body></html>
