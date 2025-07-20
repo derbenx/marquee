@@ -1,4 +1,7 @@
-Okay, you want to create a marquee banner! Here is my code for a Wifi router like config page for your custom banner.
+<pre>
+ Notice:  I pulled this code base from another project of mine, this code works, although I didn't optimize it, there could be cleanup of old code to do yet.
+ 
+ Okay, you want to create a marquee banner! Here is my code for a Wifi router like config page for your custom banner.
 
 Step 1.
 Buy the parts.
@@ -33,5 +36,4 @@ Program the ino sketch to the ESP board. Then dump the HTM files via the litteFS
 Finish.
 If all went well, you should be able to find a wifi hotspot called "WiFi Banner". The default password is "ChangeMe". Connect to the hotspot, then in your browser visit http://192.168.4.1
 
-
-
+</pre>
